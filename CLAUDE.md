@@ -42,10 +42,14 @@ Ne jamais laisser un document en contradiction avec le code.
 
 ## Journal des prompts : `docs/RAPPORT_IA.md`
 
-- La journalisation commence **au début du développement (étape 0)**, pas avant.
-- Un hook (`.claude/hooks/log-prompt.mjs`) ajoute automatiquement chaque prompt, horodaté, quand `"enabled": true` dans `.claude/hooks/prompt-log.config.json`.
-- **Au premier prompt de développement** : passer `enabled` à `true` et ajouter à la main l'entrée de ce prompt (le hook ne l'a pas encore enregistré). Heure : `Get-Date -Format "yyyy-MM-dd HH:mm:ss"`.
+- La journalisation est **active depuis l'étape 0** : le hook `.claude/hooks/log-prompt.mjs` ajoute automatiquement chaque prompt, horodaté (`"enabled": true` dans `.claude/hooks/prompt-log.config.json`).
 - **À la fin de chaque réponse** : remplacer « À compléter par Claude » de la dernière entrée par le compte rendu détaillé, au format décrit en tête du fichier.
+- Si une entrée manque (hook inactif, nouvelle session), l'ajouter à la main avec l'heure de `Get-Date -Format "yyyy-MM-dd HH:mm:ss"`.
+
+## Lancer et vérifier
+
+- `npm run dev` lance l'API (port 3000) et Angular (port 4200). Dans l'aperçu de Claude Code, lancer `npm run dev` en arrière-plan puis ouvrir la configuration `studyshare-dev` de `.claude/launch.json` : si l'aperçu lance lui-même la commande, il impose sa variable `PORT` et l'API prend le port 4200.
+- Avant de dire qu'une étape est terminée : `npm run lint`, `npm test` et `npm run build` doivent passer, et l'écran concerné doit avoir été vérifié dans le navigateur.
 
 ## Qualité : définition de « terminé »
 

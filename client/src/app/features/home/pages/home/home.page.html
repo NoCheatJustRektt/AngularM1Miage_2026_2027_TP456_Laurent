@@ -1,0 +1,37 @@
+<section class="welcome">
+  <h1>Bienvenue sur StudyShare</h1>
+  <p>
+    Partagez vos fiches de révision avec vos amis et vos groupes, et retrouvez celles des autres
+    étudiants.
+  </p>
+  <p class="notice">Le site est en construction : les fonctionnalités arrivent étape par étape.</p>
+</section>
+
+<mat-card class="status" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>État du serveur</mat-card-title>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="status-line" role="status" aria-live="polite">
+      @switch (apiStatus()) {
+        @case ('checking') {
+          <mat-progress-spinner mode="indeterminate" diameter="24" aria-hidden="true" />
+          <span>Connexion au serveur…</span>
+        }
+        @case ('online') {
+          <mat-icon class="online" aria-hidden="true">check_circle</mat-icon>
+          <span>Le serveur répond.</span>
+        }
+        @case ('offline') {
+          <mat-icon class="offline" aria-hidden="true">error</mat-icon>
+          <span>Le serveur ne répond pas.</span>
+        }
+      }
+    </div>
+  </mat-card-content>
+  @if (apiStatus() === 'offline') {
+    <mat-card-actions>
+      <button mat-button type="button" (click)="retry()">Réessayer</button>
+    </mat-card-actions>
+  }
+</mat-card>
