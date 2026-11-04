@@ -89,3 +89,34 @@ Lance l'étape 0 sur la mise en place du projet.
 - L'adresse de l'API en production (`environment.ts`) est provisoire jusqu'à l'étape 8.
 - La CI GitHub Actions n'a pas encore tourné : elle se lancera au premier push de la branche.
 - Fusion de `chore/00-project-setup` dans `develop` : en attente de la validation de l'utilisateur.
+
+---
+
+## Prompt n°2 — 2026-11-04 19:39:02
+
+### Prompt
+
+````text
+Oui, fusionne
+````
+
+### Compte rendu de la réponse
+
+**Résumé :** validation par l'utilisateur de l'étape 0, puis fusion de `chore/00-project-setup` dans `develop`.
+
+**Étape :** 0 — Mise en place (clôture).
+
+**Actions réalisées :**
+- Compte rendu de ce prompt rédigé et commité sur `chore/00-project-setup` avant la fusion, pour que `develop` contienne un journal complet.
+- Fusion dans `develop` avec `git merge --no-ff` (le hook de garde a demandé la confirmation de l'utilisateur), puis suppression de la branche locale `chore/00-project-setup`.
+
+**Fichiers créés ou modifiés :**
+- `docs/RAPPORT_IA.md` — entrée du prompt n°2
+
+**Décisions prises :** aucune.
+
+**Tests :** aucun nouveau test ; les 49 tests de l'étape 0 passaient avant la fusion.
+
+**Points en suspens :**
+- Fusion de `develop` dans `main` et push vers GitHub : à faire par l'utilisateur.
+- Le prochain prompt sera journalisé sur `develop` par le hook : il sera emporté par la branche de travail suivante.
