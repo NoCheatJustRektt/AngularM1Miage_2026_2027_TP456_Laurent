@@ -35,15 +35,16 @@
 AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudyShare)
 │
 ├── .claude/                                    ✅ configuration de Claude Code pour ce projet
+│   ├── launch.json                             ✅ aperçu de l'application dans Claude Code (http://localhost:4200)
 │   ├── settings.json                           ✅ déclare les hooks (journalisation des prompts, garde git)
 │   └── hooks/
 │       ├── guard-git.mjs                       ✅ fait respecter le workflow de branches (voir CONVENTIONS.md)
 │       ├── log-prompt.mjs                      ✅ écrit chaque prompt horodaté dans docs/RAPPORT_IA.md
 │       └── prompt-log.config.json              ✅ { "enabled": false } — activé au début du développement
 │
-├── .github/                                    🔲 étape 0
+├── .github/                                    ✅
 │   └── workflows/
-│       └── ci.yml                              🔲 lint + tests à chaque push ; appel planifié de /api/health?deep=1
+│       └── ci.yml                              ✅ lint + tests + build à chaque push (appel planifié de /api/health?deep=1 : 🔲 étape 8)
 │
 ├── docs/                                       ✅ documentation du projet
 │   ├── PRESENTATION.md                         ✅ ce qu'est StudyShare
@@ -59,58 +60,68 @@ AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudySh
 │   ├── ROADMAP.md                              ✅ étapes et avancement
 │   └── RAPPORT_IA.md                           ✅ journal des prompts
 │
-├── shared/                                     🔲 étape 0 — types et constantes communs (paquet @studyshare/shared)
-│   ├── package.json
-│   ├── tsconfig.json
+├── shared/                                     ✅ types et constantes communs (paquet @studyshare/shared)
+│   ├── package.json                            ✅ paquet ESM ; « main » pointe vers dist/ (compilé avant le serveur et le client)
+│   ├── tsconfig.json                           ✅
+│   ├── dist/                                   (généré par npm run build:shared, ignoré par git)
 │   └── src/
-│       ├── index.ts                            réexporte tout le paquet
+│       ├── index.ts                            ✅ réexporte tout le paquet
 │       ├── constants/
-│       │   ├── files.constants.ts              types MIME acceptés, tailles maximales, nombre de fichiers
-│       │   ├── sheet.constants.ts              SUBJECTS, LEVELS, limites de longueur, REPORT_THRESHOLD
-│       │   └── pagination.constants.ts         DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
+│       │   ├── files.constants.ts              ✅ types MIME acceptés, tailles maximales, nombre de fichiers, quota
+│       │   ├── sheet.constants.ts              ✅ SHEET_STATUSES, SUBJECTS, LEVELS, limites de longueur, REPORT_THRESHOLD
+│       │   └── pagination.constants.ts         ✅ DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE
 │       └── types/
-│           ├── api.types.ts                    ApiError, Paginated<T>
-│           ├── user.types.ts                   User, PublicUser, UserRole, AuthResponse
-│           ├── sheet.types.ts                  Sheet, SheetFile, SheetStatus, SheetVisibility, SheetSearchQuery
-│           ├── friendship.types.ts             Friendship, FriendshipStatus
-│           ├── group.types.ts                  Group
-│           ├── share.types.ts                  Share, ShareTargetType
-│           ├── report.types.ts                 Report, ReportReason, ReportStatus
-│           └── activity.types.ts               Activity, ActivityType
+│           ├── api.types.ts                    ✅ ApiError, ApiErrorDetail, Paginated<T>
+│           ├── health.types.ts                 ✅ HealthResponse, DeepHealthResponse
+│           ├── user.types.ts                   🔲 étape 1 — User, PublicUser, UserRole, AuthResponse
+│           ├── sheet.types.ts                  🔲 étape 2 — Sheet, SheetFile, SheetSummary, SheetSearchQuery
+│           ├── friendship.types.ts             🔲 étape 4 — Friendship, FriendshipStatus
+│           ├── group.types.ts                  🔲 étape 5 — Group
+│           ├── share.types.ts                  🔲 étape 5 — Share, ShareTargetType
+│           ├── report.types.ts                 🔲 étape 7 — Report, ReportReason, ReportStatus
+│           └── activity.types.ts               🔲 étape 6 — Activity, ActivityType
 │
-├── server/                                     🔲 étape 0 — API Express (paquet @studyshare/server)
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── vitest.config.ts
-│   ├── .env.example                            modèle des variables d'environnement (sans secret)
+├── server/                                     ✅ API Express (paquet @studyshare/server)
+│   ├── package.json                            ✅ scripts dev (tsx watch), build (tsc), start, test, test:coverage
+│   ├── tsconfig.json                           ✅ hérite de tsconfig.base.json (ESM, NodeNext)
+│   ├── tsconfig.build.json                     ✅ compilation de production, sans les tests
+│   ├── vitest.config.ts                        ✅ variables de test, base en mémoire, couverture
+│   ├── .env.example                            ✅ modèle des variables d'environnement (sans secret)
 │   ├── scripts/
 │   │   └── make-moderator.ts                   🔲 étape 7 — donne le rôle modérateur à un utilisateur
 │   └── src/
-│       ├── app.ts                              crée l'application Express (middlewares, routes) sans la démarrer
-│       ├── server.ts                           connexion MongoDB puis démarrage sur PORT
+│       ├── app.ts                              ✅ crée l'application Express (helmet, CORS, JSON, routes) sans la démarrer
+│       ├── app.spec.ts                         ✅
+│       ├── server.ts                           ✅ connexion MongoDB (en mémoire si MONGODB_URI absente en dev) puis démarrage
 │       ├── config/
-│       │   └── env.ts                          lit et valide le .env (Zod) ; seul fichier qui lit process.env
+│       │   ├── env.ts                          ✅ charge server/.env, valide avec Zod ; seul fichier qui lit process.env
+│       │   └── env.spec.ts                     ✅
 │       ├── core/
-│       │   ├── db.ts                           connexion et déconnexion Mongoose
-│       │   ├── errors.ts                       classe AppError(status, code, message, details)
-│       │   ├── events.ts                       bus d'événements interne typé (sheet.published, …)
-│       │   ├── logger.ts                       journalisation (sans données sensibles)
+│       │   ├── db.ts                           ✅ connexion, déconnexion, test de santé Mongoose ; sanitizeFilter activé
+│       │   ├── errors.ts                       ✅ classe AppError(status, code, message, details)
+│       │   ├── events.ts                       🔲 étape 6 — bus d'événements interne typé (sheet.published, …)
+│       │   ├── logger.ts                       ✅ journalisation (muette pendant les tests, sans données sensibles)
 │       │   └── middlewares/
-│       │       ├── auth.middleware.ts          requireAuth, requireRole('moderator')
-│       │       ├── validate.middleware.ts      validate({ body, query, params }) avec Zod
-│       │       ├── upload.middleware.ts        Multer en mémoire + vérification du contenu réel (file-type)
-│       │       ├── rate-limit.middleware.ts    limite le nombre de tentatives de connexion
-│       │       ├── not-found.middleware.ts     404 ROUTE_NOT_FOUND
-│       │       └── error-handler.middleware.ts transforme toute erreur en JSON { error: { code, message } }
+│       │       ├── auth.middleware.ts          🔲 étape 1 — requireAuth, requireRole('moderator')
+│       │       ├── validate.middleware.ts      ✅ validate({ params, query, body }) avec Zod (messages en français) ; validated()
+│       │       ├── validate.middleware.spec.ts ✅
+│       │       ├── upload.middleware.ts        🔲 étape 2 — Multer en mémoire + vérification du contenu réel (file-type)
+│       │       ├── rate-limit.middleware.ts    🔲 étape 1 — limite le nombre de tentatives de connexion
+│       │       ├── not-found.middleware.ts     ✅ 404 ROUTE_NOT_FOUND
+│       │       ├── error-handler.middleware.ts ✅ transforme toute erreur en JSON { error: { code, message, details } }
+│       │       └── error-handler.middleware.spec.ts ✅ (couvre aussi not-found)
 │       ├── storage/
-│       │   ├── storage.ts                      interface StorageService (upload, getDownloadUrl, delete)
-│       │   ├── supabase.storage.ts             implémentation Supabase (@supabase/supabase-js)
-│       │   ├── memory.storage.ts               implémentation en mémoire (tests, développement)
-│       │   └── index.ts                        choisit l'implémentation selon STORAGE_DRIVER
+│       │   ├── storage.ts                      ✅ interface StorageService (upload, getDownloadUrl, delete, isHealthy)
+│       │   ├── supabase.storage.ts             🔲 étape 2 — implémentation Supabase (@supabase/supabase-js)
+│       │   ├── memory.storage.ts               ✅ implémentation en mémoire (tests, développement)
+│       │   ├── memory.storage.spec.ts          ✅
+│       │   └── index.ts                        ✅ getStorage() : choisit l'implémentation selon STORAGE_DRIVER
 │       ├── modules/
-│       │   ├── health/                         🔲 étape 0
+│       │   ├── health/                         ✅ étape 0
 │       │   │   ├── health.routes.ts
 │       │   │   ├── health.controller.ts
+│       │   │   ├── health.service.ts           état simple et vérification de MongoDB et du stockage
+│       │   │   ├── health.schemas.ts           paramètre deep
 │       │   │   └── health.routes.spec.ts
 │       │   ├── auth/                           🔲 étape 1
 │       │   │   ├── auth.routes.ts
@@ -184,32 +195,37 @@ AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudySh
 │       │       ├── moderation.service.spec.ts
 │       │       └── moderation.routes.spec.ts
 │       └── tests/
-│           ├── setup.ts                        démarre MongoDB en mémoire, force STORAGE_DRIVER=memory
-│           ├── factories.ts                    crée des utilisateurs, fiches, amitiés… de test
-│           └── fixtures/                       petits fichiers de test (PDF, PNG, faux PDF)
+│           ├── global-setup.ts                 ✅ démarre une seule base MongoDB en mémoire pour toute la suite
+│           ├── setup.ts                        ✅ une base par fichier de test, vidée entre deux tests
+│           ├── factories.ts                    🔲 étape 1 — crée des utilisateurs, fiches, amitiés… de test
+│           └── fixtures/                       🔲 étape 2 — petits fichiers de test (PDF, PNG, faux PDF)
 │
-├── client/                                     🔲 étape 0 — application Angular (paquet @studyshare/client)
-│   ├── package.json
-│   ├── angular.json
-│   ├── tsconfig.json
-│   ├── tsconfig.app.json
-│   ├── tsconfig.spec.json
-│   ├── proxy.conf.json                         en développement : /api → http://localhost:3000
+├── client/                                     ✅ application Angular 22 (paquet @studyshare/client)
+│   ├── package.json                            ✅ scripts start, build, test, test:coverage
+│   ├── angular.json                            ✅ proxy en dev, remplacement d'environnement, schémas OnPush
+│   ├── tsconfig.json                           ✅ configuration TypeScript générée par Angular (stricte)
+│   ├── tsconfig.app.json                       ✅
+│   ├── tsconfig.spec.json                      ✅
+│   ├── proxy.conf.json                         ✅ en développement : /api → http://localhost:3000
 │   ├── public/
-│   │   └── favicon.ico
+│   │   └── favicon.ico                         ✅
 │   └── src/
-│       ├── index.html
-│       ├── main.ts
-│       ├── styles.scss                         thème Angular Material, styles globaux
+│       ├── index.html                          ✅ langue fr, polices Roboto et Material Icons
+│       ├── main.ts                             ✅
+│       ├── styles.scss                         ✅ thème Angular Material 3, styles globaux
 │       ├── environments/
-│       │   ├── environment.ts                  production : apiUrl = adresse de l'API sur Render
-│       │   └── environment.development.ts      développement : apiUrl = /api (proxy)
+│       │   ├── environment.ts                  ✅ production : apiUrl = adresse de l'API sur Render (à confirmer étape 8)
+│       │   └── environment.development.ts      ✅ développement : apiUrl = /api (proxy)
 │       └── app/
-│           ├── app.component.ts                composant racine
-│           ├── app.config.ts                   providers : routeur, HttpClient, interceptors, animations
-│           ├── app.routes.ts                   routes principales, chargement à la demande des fonctionnalités
+│           ├── app.component.ts                ✅ composant racine (affiche app-shell)
+│           ├── app.component.spec.ts           ✅
+│           ├── app.config.ts                   ✅ providers : routeur, HttpClient (interceptors : 🔲 étape 1)
+│           ├── app.routes.ts                   ✅ routes principales, chargement à la demande des fonctionnalités
 │           ├── core/                           services uniques pour toute l'application
-│           │   ├── auth/
+│           │   ├── health/                     ✅
+│           │   │   ├── health.api.ts           appel GET /api/health
+│           │   │   └── health.api.spec.ts
+│           │   ├── auth/                       🔲 étape 1
 │           │   │   ├── auth.api.ts             appels /api/auth/*
 │           │   │   ├── auth.store.ts           utilisateur connecté, jeton, isAuthenticated (signals)
 │           │   │   ├── auth.interceptor.ts     ajoute « Authorization: Bearer » aux requêtes /api uniquement
@@ -218,17 +234,17 @@ AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudySh
 │           │   │   ├── role.guard.ts           réserve une route à un rôle (modérateur)
 │           │   │   ├── token.storage.ts        lecture et écriture du jeton dans localStorage
 │           │   │   └── *.spec.ts               un test par fichier ci-dessus
-│           │   ├── http/
+│           │   ├── http/                       🔲 étape 1
 │           │   │   ├── error.interceptor.ts    affiche les erreurs ; 401 → déconnexion
 │           │   │   └── error.interceptor.spec.ts
-│           │   ├── notifications/
+│           │   ├── notifications/              🔲 étape 1
 │           │   │   └── notification.service.ts messages temporaires (MatSnackBar)
 │           │   └── layout/
-│           │       ├── shell/                  barre du haut + menu latéral + <router-outlet>
+│           │       ├── shell/                  ✅ barre du haut + menu latéral (replié sur téléphone) + <router-outlet>
 │           │       │   ├── shell.component.ts | .html | .scss | .spec.ts
-│           │       └── server-wakeup/          bandeau « Réveil du serveur… »
+│           │       └── server-wakeup/          🔲 étape 1 — bandeau « Réveil du serveur… »
 │           │           ├── server-wakeup.component.ts | .html | .scss | .spec.ts
-│           ├── shared/                         composants réutilisables, sans logique métier
+│           ├── shared/                         🔲 étape 2 — composants réutilisables, sans logique métier
 │           │   ├── ui/
 │           │   │   ├── sheet-card/             carte d'une fiche
 │           │   │   ├── status-badge/           pastille d'état
@@ -251,7 +267,7 @@ AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudySh
 │               │   └── pages/
 │               │       ├── login/              login.page.ts | .html | .scss | .spec.ts
 │               │       └── register/           register.page.ts | .html | .scss | .spec.ts
-│               ├── home/                       🔲 étapes 3 et 6
+│               ├── home/                       ✅ étape 0 (présentation + état du serveur) ; contenu aux étapes 3 et 6
 │               │   ├── home.routes.ts
 │               │   └── pages/home/             home.page.ts | .html | .scss | .spec.ts
 │               ├── sheets/                     🔲 étapes 2 et 5
@@ -305,12 +321,15 @@ AngularM1Miage_2026_2027_TP456_Laurent/        racine du dépôt (projet StudySh
 │                       ├── my-profile/         my-profile.page.*
 │                       └── user-profile/       user-profile.page.*
 │
-├── .editorconfig                               🔲 étape 0 — indentation, fins de ligne
-├── .gitignore                                  🔲 étape 0 — node_modules, dist, .env, coverage
-├── .prettierrc                                 🔲 étape 0
-├── eslint.config.mjs                           🔲 étape 0
-├── tsconfig.base.json                          🔲 étape 0 — options TypeScript communes (strict)
-├── package.json                                🔲 étape 0 — workspaces shared, server, client ; scripts globaux
+├── .editorconfig                               ✅ indentation, fins de ligne
+├── .gitattributes                              ✅ fins de ligne LF dans le dépôt, quel que soit le système
+├── .gitignore                                  ✅ node_modules, dist, .angular, coverage, .env
+├── .prettierrc                                 ✅ règles de mise en forme
+├── .prettierignore                             ✅ fichiers non formatés (dont la documentation Markdown)
+├── eslint.config.mjs                           ✅ ESLint commun : TypeScript, Angular, ordre des imports, Prettier
+├── tsconfig.base.json                          ✅ options TypeScript communes à shared et server (strict, NodeNext)
+├── package.json                                ✅ workspaces shared, server, client ; scripts globaux
+├── package-lock.json                           ✅ versions exactes des dépendances
 ├── render.yaml                                 🔲 étape 8 — déclaration des services Render
 ├── CLAUDE.md                                   ✅ règles de l'assistant IA
 ├── README.md                                   ✅ présentation et installation
@@ -387,7 +406,7 @@ Le bus d'événements est **synchrone du point de vue de la requête** : les éc
 
 | | Tests | Développement | Production |
 |---|---|---|---|
-| Base de données | MongoDB en mémoire (`mongodb-memory-server`) | MongoDB Atlas (base `studyshare-dev`) ou MongoDB local | MongoDB Atlas (base `studyshare`) |
+| Base de données | MongoDB en mémoire (`mongodb-memory-server`), une base par fichier de test | MongoDB Atlas (base `studyshare-dev`), MongoDB local, ou **en mémoire si `MONGODB_URI` est absente** (données perdues à l'arrêt) | MongoDB Atlas (base `studyshare`) |
 | Stockage | `memory` | `memory` ou bucket Supabase de développement | Bucket Supabase privé `studyshare-files` |
 | Front → API | — | Proxy `/api` → `localhost:3000` | Adresse Render + CORS |
 | Variables | Fixées par `tests/setup.ts` | `server/.env` | Tableau de bord Render |

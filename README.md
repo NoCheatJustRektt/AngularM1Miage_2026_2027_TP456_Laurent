@@ -5,27 +5,26 @@
 
 Les étudiants déposent leurs fiches (PDF, images), choisissent si elles sont **publiques** ou **privées**, les partagent avec leurs **amis** ou leurs **groupes de révision**, et retrouvent les fiches des autres grâce à la **recherche**.
 
-**État du projet :** conception terminée, développement pas encore commencé (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
+**État du projet :** étape 0 (mise en place) terminée : l'application Angular et l'API démarrent ; les fonctionnalités arrivent étape par étape (voir [docs/ROADMAP.md](docs/ROADMAP.md)).
 
 ## Technologies
 
 | Couche | Choix |
 |---|---|
-| Front-end | Angular + Angular Material (TypeScript) |
-| Back-end | Node.js + Express (TypeScript) |
-| Base de données | MongoDB Atlas + Mongoose |
+| Front-end | Angular 22 + Angular Material 3 (TypeScript 6.0) |
+| Back-end | Node.js 26 + Express 5 (TypeScript), validation Zod |
+| Base de données | MongoDB Atlas + Mongoose 9 |
 | Stockage des fichiers | Supabase Storage (bucket privé) |
 | Hébergement | Render (site statique + service web) |
 | Tests | Vitest, Supertest, mongodb-memory-server |
+| Qualité | ESLint, Prettier, GitHub Actions |
 
 ## Prérequis
 
-- Node.js 22 ou plus récent (LTS) et npm
+- **Node.js 22.22.3+, 24.15+ ou 26+** (exigé par Angular 22 ; le projet est développé avec Node 26 LTS) et npm
 - Git
 
 ## Installation et lancement
-
-> Les commandes ci-dessous seront disponibles à partir de l'étape 0.
 
 ```bash
 npm install
@@ -41,12 +40,16 @@ npm test
 
 | Commande | Effet |
 |---|---|
-| `npm run dev` | Lance l'API (port 3000) et Angular (port 4200) |
-| `npm test` | Lance tous les tests (back, front, partagé) |
-| `npm run lint` | Vérifie le style du code |
+| `npm run dev` | Lance l'API (http://localhost:3000/api) et Angular (http://localhost:4200) |
+| `npm test` | Lance tous les tests (serveur et client) |
+| `npm run test:coverage` | Lance les tests avec mesure de la couverture |
+| `npm run lint` | Vérifie le code (ESLint) et sa mise en forme (Prettier) |
+| `npm run format` | Remet le code en forme (Prettier) |
 | `npm run build` | Compile le projet pour la production |
 
-La configuration se fait dans `server/.env` (modèle : `server/.env.example`). En développement, aucun compte cloud n'est nécessaire : la base et le stockage peuvent tourner en mémoire.
+Ouvrir ensuite http://localhost:4200 : la page d'accueil indique si le serveur répond.
+
+La configuration se fait dans `server/.env` (modèle : `server/.env.example`). En développement, aucun compte cloud n'est nécessaire : sans `MONGODB_URI`, l'API démarre une base MongoDB **en mémoire** (données perdues à l'arrêt), et les fichiers sont stockés en mémoire. Le premier lancement télécharge le binaire MongoDB (environ 100 Mo).
 
 ## Branches
 

@@ -53,8 +53,8 @@
 
 | Mesure | Détail | État |
 |---|---|---|
-| Fichier `.env` | Jamais committé (`.gitignore`). Le dépôt contient seulement `server/.env.example`, sans valeur secrète | 🔲 |
-| Validation au démarrage | `config/env.ts` refuse de démarrer si une variable manque ou est invalide (par exemple `JWT_SECRET` trop court) | 🔲 |
+| Fichier `.env` | Jamais committé (`.gitignore`). Le dépôt contient seulement `server/.env.example`, sans valeur secrète | ✅ |
+| Validation au démarrage | `config/env.ts` refuse de démarrer si une variable manque ou est invalide ; en production, `MONGODB_URI` et `CORS_ORIGIN` sont obligatoires (`JWT_SECRET` : étape 1) | ✅ |
 | Clé Supabase `service_role` | Donne tous les droits sur le stockage : **uniquement côté serveur**, dans les variables Render. Jamais dans Angular, jamais dans Git | 🔲 |
 | MongoDB Atlas | Utilisateur dédié avec droits limités à la base du projet ; mot de passe long et aléatoire. Render n'ayant pas d'IP fixe, l'accès réseau est ouvert (`0.0.0.0/0`) : la sécurité repose sur ces identifiants | 🔲 |
 | Journaux | Ne contiennent ni mot de passe, ni jeton, ni clé, ni URL signée | 🔲 |
@@ -63,17 +63,19 @@
 
 | Mesure | Détail | État |
 |---|---|---|
-| En-têtes HTTP | `helmet` sur l'API | 🔲 |
-| CORS | Seule l'adresse du front (`CORS_ORIGIN`) est autorisée | 🔲 |
+| En-têtes HTTP | `helmet` sur l'API (testé dans `app.spec.ts`) | ✅ |
+| CORS | Seule l'adresse du front (`CORS_ORIGIN`) est autorisée (testé dans `app.spec.ts`) | ✅ |
 | XSS | Angular échappe automatiquement le contenu affiché ; `innerHTML` et `bypassSecurityTrust*` interdits avec du contenu utilisateur | 🔲 |
-| Injection MongoDB | Toutes les entrées passent par Zod (types stricts) ; option `sanitizeFilter` de Mongoose activée ; les paramètres de recherche ne sont jamais insérés tels quels dans une requête | 🔲 |
-| Taille des requêtes | `express.json({ limit: '100kb' })` ; Multer limite les fichiers | 🔲 |
-| Erreurs | Les erreurs inattendues renvoient `INTERNAL_ERROR` sans pile d'appels ni détail technique | 🔲 |
+| Injection MongoDB | Toutes les entrées passent par Zod (middleware `validate` en place) ; option `sanitizeFilter` de Mongoose activée dans `core/db.ts` ; les paramètres de recherche ne sont jamais insérés tels quels dans une requête | 🔄 |
+| Taille des requêtes | `express.json({ limit: '100kb' })` (413 au-delà) ; Multer limitera les fichiers à l'étape 2 | 🔄 |
+| Erreurs | Les erreurs inattendues renvoient `INTERNAL_ERROR` sans pile d'appels ni détail technique (testé) | ✅ |
 | HTTPS | Fourni par Render pour le front et l'API | 🔲 |
 
 ## 7. Dépendances
 
 - `npm audit` lancé à chaque étape ; les failles « high » et « critical » sont corrigées avant de déployer.
+- Audit du 2026-11-04 (étape 0) : aucune faille « high » ou « critical ». 15 alertes « moderate », toutes dues à `minimatch` (risque de déni de service), utilisé uniquement par ESLint et typescript-eslint : outils de développement, absents du serveur en production. À revoir quand ESLint publiera une mise à jour (la correction proposée par `npm audit fix --force` casserait ESLint).
+- npm 11 ne lance plus automatiquement les scripts d'installation des dépendances (`allowScripts`) : c'est une protection contre les paquets malveillants. Aucun script n'est nécessaire au projet pour l'instant (le binaire MongoDB des tests est téléchargé au premier lancement).
 - Versions verrouillées par `package-lock.json`.
 
 ## 8. Limites connues (projet d'école)

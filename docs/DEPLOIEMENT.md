@@ -16,6 +16,7 @@
 
 | Variable | Exemple | Description |
 |---|---|---|
+| `NODE_VERSION` | `26` | Version de Node.js utilisée par Render (Angular 22 exige au moins 22.22.3) |
 | `NODE_ENV` | `production` | |
 | `PORT` | `3000` | Fourni par Render |
 | `MONGODB_URI` | `mongodb+srv://…/studyshare` | Chaîne de connexion Atlas |

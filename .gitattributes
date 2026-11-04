@@ -1,0 +1,9 @@
+# Fins de ligne LF pour tous les fichiers texte, quel que soit le système (voir docs/CONVENTIONS.md).
+* text=auto eol=lf
+
+# Fichiers binaires
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.pdf binary
