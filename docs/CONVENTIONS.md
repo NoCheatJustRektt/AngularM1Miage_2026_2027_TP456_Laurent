@@ -79,7 +79,10 @@ Shared : `.types`, `.constants`.
   export const SHEET_STATUSES = ['draft', 'published', 'reported', 'archived'] as const;
   export type SheetStatus = (typeof SHEET_STATUSES)[number];
   ```
-- Imports : modules Node, puis bibliothèques, puis `@studyshare/shared`, puis fichiers du projet (ordre vérifié par ESLint).
+- Imports : modules Node, puis bibliothèques, puis `@studyshare/shared`, puis fichiers du projet, séparés par une ligne vide (ordre vérifié par ESLint, règle `simple-import-sort`).
+- **`shared` et `server` sont en modules ES (NodeNext)** : les imports relatifs se terminent par **`.js`**, même si le fichier source est en `.ts` (`import { AppError } from '../errors.js'`). Côté Angular, pas d'extension.
+- Les modules Node s'importent avec le préfixe `node:` (`import { existsSync } from 'node:fs'`).
+- Imports de types avec `import type` (règle `consistent-type-imports`).
 - `async` / `await` partout, pas de `.then()` enchaînés.
 
 ## 4. Mise en forme
@@ -101,7 +104,7 @@ Vérifiée automatiquement par **Prettier** et **ESLint** (`npm run lint`).
 - **Une couche, un rôle** (détail dans [ARCHITECTURE.md](ARCHITECTURE.md#3-back-end--organisation-dun-module)) : les routes déclarent, le controller traduit HTTP, le service décide.
 - **Les services ne connaissent pas `req` ni `res`.** Ils reçoivent des données typées et renvoient des données ou lèvent une erreur.
 - **Erreurs :** toujours `throw new AppError(status, 'CODE', 'Message en français')`. Jamais de `res.status(...)` dans un service. Le middleware d'erreurs fait la réponse.
-- **Validation :** toute entrée (`body`, `query`, `params`) passe par un schéma Zod dans `*.schemas.ts` et le middleware `validate`.
+- **Validation :** toute entrée (`body`, `query`, `params`) passe par un schéma Zod dans `*.schemas.ts` et le middleware `validate`. Dans le controller, les valeurs validées se lisent avec `validated(schema, req.query)`, qui leur donne le bon type.
 - **Accès aux fiches :** toujours via `sheet.policy.ts`. Une requête de liste utilise `buildVisibleSheetsFilter`.
 - **Configuration :** seule `config/env.ts` lit `process.env`. Les autres fichiers importent `env`.
 - **Stockage :** toujours via l'interface `StorageService` (`storage/index.ts`), jamais directement via Supabase.
@@ -128,6 +131,7 @@ Vérifiée automatiquement par **Prettier** et **ESLint** (`npm run lint`).
 
 - **Chaque nouvelle fonctionnalité a des tests unitaires**, écrits dans la même tâche (exigence du sujet).
 - Un fichier testé = un fichier `.spec.ts` à côté.
+- Les fonctions de test s'importent explicitement : `import { describe, expect, it } from 'vitest'`.
 - Structure **Préparer / Agir / Vérifier**, une seule raison d'échouer par test.
 - Noms en français, qui décrivent le comportement : `it('renvoie 404 pour une fiche privée non partagée')`.
 - Tester les **cas d'erreur** autant que les cas normaux (droits, validations, transitions interdites).

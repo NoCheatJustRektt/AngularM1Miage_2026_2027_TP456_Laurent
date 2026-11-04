@@ -10,11 +10,12 @@ import { execFileSync } from 'node:child_process';
 import { isAbsolute, join, relative, resolve } from 'node:path';
 
 const PROTECTED_BRANCHES = ['main', 'develop'];
-const WORK_BRANCH_PATTERN = /^(feature|fix|enhancement|docs|chore|refactor|test)\/[a-z0-9][a-z0-9.-]*$/;
+const WORK_BRANCH_PATTERN =
+  /^(feature|fix|enhancement|docs|chore|refactor|test)\/[a-z0-9][a-z0-9.-]*$/;
 const FILE_TOOLS = ['Edit', 'Write', 'NotebookEdit'];
 const SHELL_TOOLS = ['Bash', 'PowerShell'];
 const BRANCH_HELP =
-  'Crée d\'abord une branche de travail depuis develop : ' +
+  "Crée d'abord une branche de travail depuis develop : " +
   '`git switch -c <type>/<description> develop` (types : feature, fix, enhancement, docs, chore, refactor, test).';
 
 function readStdin() {
@@ -89,13 +90,12 @@ function checkCreatedBranchName({ subcommand, args }) {
   const isCreation =
     ((subcommand === 'switch' || subcommand === 'checkout') &&
       args.some((arg) => ['-c', '-C', '-b', '-B', '--create'].includes(arg))) ||
-    (subcommand === 'branch' &&
-      args.length > 0 &&
-      !args.some((arg) => arg.startsWith('-')));
+    (subcommand === 'branch' && args.length > 0 && !args.some((arg) => arg.startsWith('-')));
   if (!isCreation) {
     return null;
   }
-  const name = getBranchAfterSwitch({ subcommand, args }) ?? args.find((arg) => !arg.startsWith('-'));
+  const name =
+    getBranchAfterSwitch({ subcommand, args }) ?? args.find((arg) => !arg.startsWith('-'));
   if (name && !PROTECTED_BRANCHES.includes(name) && !WORK_BRANCH_PATTERN.test(name)) {
     return decide(
       'deny',
@@ -117,9 +117,15 @@ function checkGitCommand(gitCommand, branch) {
     return namingDecision;
   }
 
-  if (subcommand === 'branch' && args.some((arg) => ['-d', '-D', '--delete', '-m', '-M'].includes(arg))) {
+  if (
+    subcommand === 'branch' &&
+    args.some((arg) => ['-d', '-D', '--delete', '-m', '-M'].includes(arg))
+  ) {
     if (PROTECTED_BRANCHES.some(mentions)) {
-      return decide('deny', 'Les branches main et develop ne doivent jamais être supprimées ni renommées.');
+      return decide(
+        'deny',
+        'Les branches main et develop ne doivent jamais être supprimées ni renommées.',
+      );
     }
   }
 
@@ -130,13 +136,16 @@ function checkGitCommand(gitCommand, branch) {
   const historyCommands = ['merge', 'rebase', 'cherry-pick', 'revert', 'reset', 'am'];
   if (historyCommands.includes(subcommand)) {
     if (branch === 'main') {
-      return decide('deny', 'La branche main est gérée uniquement par l\'utilisateur : aucune fusion ni réécriture par Claude.');
+      return decide(
+        'deny',
+        "La branche main est gérée uniquement par l'utilisateur : aucune fusion ni réécriture par Claude.",
+      );
     }
     if (branch === 'develop') {
       if (subcommand === 'merge' && !args.includes('--abort')) {
         return decide(
           'ask',
-          'Fusion dans develop : à accepter seulement si l\'utilisateur a validé la branche dans la conversation.',
+          "Fusion dans develop : à accepter seulement si l'utilisateur a validé la branche dans la conversation.",
         );
       }
       if (!args.includes('--abort')) {
@@ -148,7 +157,9 @@ function checkGitCommand(gitCommand, branch) {
   if (subcommand === 'push') {
     const deletesProtected =
       (args.includes('--delete') || args.includes('-d')) && PROTECTED_BRANCHES.some(mentions);
-    const pushesProtectedByColon = PROTECTED_BRANCHES.some((name) => args.some((arg) => arg === `:${name}`));
+    const pushesProtectedByColon = PROTECTED_BRANCHES.some((name) =>
+      args.some((arg) => arg === `:${name}`),
+    );
     if (deletesProtected || pushesProtectedByColon) {
       return decide('deny', 'Les branches main et develop ne doivent jamais être supprimées.');
     }
@@ -156,13 +167,16 @@ function checkGitCommand(gitCommand, branch) {
     const targetsMain = mentions('main') || (!hasRefspec && branch === 'main');
     const targetsDevelop = mentions('develop') || (!hasRefspec && branch === 'develop');
     if (targetsMain) {
-      return decide('deny', 'Seul l\'utilisateur pousse vers main.');
+      return decide('deny', "Seul l'utilisateur pousse vers main.");
     }
     if (targetsDevelop) {
-      return decide('ask', 'Push vers develop : à accepter seulement après validation de la fusion par l\'utilisateur.');
+      return decide(
+        'ask',
+        "Push vers develop : à accepter seulement après validation de la fusion par l'utilisateur.",
+      );
     }
     if (args.some((arg) => ['--force', '-f', '--force-with-lease'].includes(arg))) {
-      return decide('ask', 'Push forcé : à accepter seulement si l\'utilisateur l\'a demandé.');
+      return decide('ask', "Push forcé : à accepter seulement si l'utilisateur l'a demandé.");
     }
   }
 
@@ -185,7 +199,11 @@ function checkShellCommand(command, cwd) {
 }
 
 function checkFileEdit(filePath, projectDir) {
-  if (!filePath || !isInsideDirectory(filePath, projectDir) || isInsideDirectory(filePath, join(projectDir, '.git'))) {
+  if (
+    !filePath ||
+    !isInsideDirectory(filePath, projectDir) ||
+    isInsideDirectory(filePath, join(projectDir, '.git'))
+  ) {
     return null;
   }
   const branch = getCurrentBranch(projectDir);

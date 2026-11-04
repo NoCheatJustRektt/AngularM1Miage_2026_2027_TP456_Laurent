@@ -1,0 +1,37 @@
+{
+  "name": "studyshare",
+  "version": "0.1.0",
+  "private": true,
+  "description": "StudyShare : plateforme de partage de fiches de révision entre étudiants",
+  "author": "Laurent Dupuis",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "engines": {
+    "node": "^22.22.3 || ^24.15.0 || >=26.0.0"
+  },
+  "scripts": {
+    "build:shared": "npm run build -w shared",
+    "dev": "npm run build:shared && concurrently --kill-others-on-fail --names server,client --prefix-colors blue,magenta \"npm run dev -w server\" \"npm run start -w client\"",
+    "build": "npm run build:shared && npm run build -w server && npm run build -w client",
+    "test": "npm run build:shared && npm test -w server && npm test -w client",
+    "test:coverage": "npm run build:shared && npm run test:coverage -w server && npm run test:coverage -w client",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.6.6",
+    "angular-eslint": "^22.6.0",
+    "concurrently": "^10.0.6",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "globals": "^17.14.0",
+    "prettier": "^3.9.10",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.72.1"
+  }
+}

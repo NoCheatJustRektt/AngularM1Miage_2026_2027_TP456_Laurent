@@ -10,8 +10,8 @@
 |---|---|---|---|
 | [Inscription](#inscription) | `/register` | Visiteur | 🔲 |
 | [Connexion](#connexion) | `/login` | Visiteur | 🔲 |
-| [Structure commune](#structure-commune-à-toutes-les-pages) | — | Connecté | 🔲 |
-| [Accueil](#accueil) | `/` | Connecté | 🔲 |
+| [Structure commune](#structure-commune-à-toutes-les-pages) | — | Connecté | 🔄 barre du haut et menu (Accueil seul) |
+| [Accueil](#accueil) | `/` | Connecté | 🔄 version de l'étape 0 |
 | [Recherche](#recherche) | `/search` | Connecté | 🔲 |
 | [Mes fiches](#mes-fiches) | `/my-sheets` | Connecté | 🔲 |
 | [Créer ou modifier une fiche](#créer-ou-modifier-une-fiche) | `/sheets/new`, `/sheets/:id/edit` | Propriétaire | 🔲 |
@@ -69,7 +69,9 @@ Les fiches sont affichées sous forme de **cartes** : titre, matière, niveau, a
 
 **Objectif :** voir d'un coup d'œil ce qui est nouveau pour moi.
 
-**Ce que je vois, en trois sections :**
+> **Disponible aujourd'hui (étape 0) :** un message de bienvenue et une carte **« État du serveur »**. Elle affiche « Connexion au serveur… » pendant la vérification, puis « Le serveur répond. » ou « Le serveur ne répond pas. » avec un bouton **Réessayer**. La page est accessible sans connexion tant que l'authentification (étape 1) n'existe pas. Sur téléphone, le menu se replie derrière le bouton ☰.
+
+**Ce que je verrai, en trois sections :**
 1. **Récemment ajoutées** : les dernières fiches publiques publiées sur la plateforme.
 2. **Partagées avec moi** : les dernières fiches que mes amis ou mes groupes ont partagées avec moi.
 3. **Activité de mes amis** : « Léa a publié *Fiche SQL — jointures* », « Tom et Inès sont maintenant amis », « Léa a ajouté Tom au groupe *BDD M1* ».

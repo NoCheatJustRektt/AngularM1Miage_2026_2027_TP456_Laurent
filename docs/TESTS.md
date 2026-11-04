@@ -18,15 +18,25 @@ Aucun test n'a besoin d'internet ni d'un compte cloud.
 
 ## 2. Commandes
 
-> Disponibles à partir de l'étape 0.
-
 | Commande | Effet |
 |---|---|
-| `npm test` | Tous les tests (shared, server, client) |
+| `npm test` | Compile `shared`, puis lance les tests du serveur et du client |
 | `npm test -w server` | Tests du serveur seulement |
 | `npm test -w client` | Tests du client seulement |
-| `npm run test:coverage` | Tous les tests avec rapport de couverture (dossier `coverage/`) |
+| `npm run test:coverage` | Tous les tests avec rapport de couverture (dossiers `server/coverage/` et `client/coverage/`) |
 | `npm run test:watch -w server` | Relance les tests du serveur à chaque modification |
+
+Le paquet `shared` ne contient pour l'instant que des types et des constantes : il n'a pas de tests propres.
+
+### Fonctionnement côté serveur
+
+- `vitest.config.ts` fixe les variables d'environnement de test (`NODE_ENV=test`, `STORAGE_DRIVER=memory`…). Le fichier `server/.env` n'est jamais chargé pendant les tests.
+- `tests/global-setup.ts` démarre **une seule** base MongoDB en mémoire pour toute la suite. Le premier lancement télécharge le binaire MongoDB (mis en cache ensuite).
+- `tests/setup.ts` connecte chaque fichier de test à **sa propre base**, vidée après chaque test et supprimée à la fin.
+
+### Fonctionnement côté client
+
+`ng test` utilise le constructeur de tests d'Angular avec **Vitest** et **jsdom** (pas de navigateur à installer).
 
 ## 3. Ce qu'on teste, et à quel niveau
 
@@ -86,6 +96,22 @@ GitHub Actions (`.github/workflows/ci.yml`) lance `npm run lint` et `npm test` �
 
 > Mis à jour à chaque fois que les tests sont lancés à la fin d'une tâche. Le plus récent en haut.
 
-| Date | Étape | Suite | Tests | Réussis | Échoués | Couverture | Remarques |
+| Date | Étape | Suite | Tests | Réussis | Échoués | Couverture (lignes) | Remarques |
 |---|---|---|---|---|---|---|---|
-| — | — | — | — | — | — | — | Aucun test pour l'instant |
+| 2026-11-04 | 0 | server (6 fichiers) | 38 | 38 | 0 | 95,2 % (instructions 92,6 %) | Seule partie peu couverte : `logger.ts`, muet pendant les tests |
+| 2026-11-04 | 0 | client (4 fichiers) | 11 | 11 | 0 | 97,0 % (instructions 96,5 %) | — |
+
+### Détail de l'étape 0
+
+| Fichier de test | Ce qui est vérifié |
+|---|---|
+| `server/src/config/env.spec.ts` (8) | Valeurs par défaut, conversion du port, refus d'un port, d'une URI MongoDB ou d'un pilote de stockage invalides, variables obligatoires en production |
+| `server/src/core/middlewares/error-handler.middleware.spec.ts` (6) | Format `{ error: { code, message, details } }`, erreurs asynchrones, 500 sans détail technique, JSON mal formé (400), corps trop gros (413), route inconnue (404) |
+| `server/src/core/middlewares/validate.middleware.spec.ts` (6) | Conversion et valeurs par défaut, 400 avec le champ fautif, erreurs regroupées, messages en français, requête valide |
+| `server/src/storage/memory.storage.spec.ts` (7) | Envoi, remplacement, URL de téléchargement avec nom et expiration, fichier absent, suppression, santé, instance unique |
+| `server/src/modules/health/health.routes.spec.ts` (7) | 200 simple, accès sans connexion, `deep=1` et `deep=true`, 503 si le stockage ou la base ne répond pas, `deep` invalide |
+| `server/src/app.spec.ts` (4) | En-têtes de sécurité, CORS autorisé pour le front et refusé ailleurs, 404 au format JSON |
+| `client/src/app/app.component.spec.ts` (1) | Le composant racine affiche la structure de page |
+| `client/src/app/core/layout/shell/shell.component.spec.ts` (4) | Nom et lien d'accueil, menu, menu toujours ouvert sur ordinateur, bouton ☰ sur téléphone |
+| `client/src/app/core/health/health.api.spec.ts` (1) | Appel `GET /api/health` |
+| `client/src/app/features/home/pages/home/home.page.spec.ts` (5) | Titre, état « connexion », « le serveur répond », « ne répond pas » avec bouton Réessayer, nouvelle tentative |

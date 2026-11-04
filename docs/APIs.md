@@ -33,6 +33,8 @@
 | Code HTTP | `code` | Quand |
 |---|---|---|
 | 400 | `VALIDATION_ERROR` | Contenu de la requête invalide (`details` liste les champs) |
+| 400 | `INVALID_JSON` | Corps de requête qui n'est pas un JSON valide |
+| 413 | `PAYLOAD_TOO_LARGE` | Corps JSON de plus de 100 Ko |
 | 400 | `INVALID_ID` | Identifiant mal formé |
 | 401 | `UNAUTHENTICATED` | Jeton absent, invalide ou expiré |
 | 403 | `FORBIDDEN` | Connecté mais pas le droit (rôle, propriétaire) |
@@ -59,13 +61,16 @@
 
 | État | Méthode | Chemin | Accès | Étape |
 |---|---|---|---|---|
-| 🔲 | GET | `/api/health` | Public | 0 |
+| ✅ | GET | `/api/health` | Public | 0 |
 
 ### `GET /api/health`
 
-- **Paramètre facultatif :** `deep=1` vérifie aussi MongoDB et Supabase.
-- **200** `{ "status": "ok", "uptime": 123.4 }` — avec `deep=1` : `{ "status": "ok", "database": "ok", "storage": "ok" }`
-- **503** `SERVICE_UNAVAILABLE` si la base ou le stockage ne répond pas (avec `deep=1`).
+- **Paramètre facultatif :** `deep` (`1`, `true`, `0` ou `false`). `deep=1` vérifie aussi MongoDB et le stockage.
+- **200** `{ "status": "ok", "uptime": 123.4 }` (`uptime` : secondes depuis le démarrage du serveur)
+- **200** avec `deep=1` : `{ "status": "ok", "database": "ok", "storage": "ok" }`
+- **503** avec `deep=1`, si la base ou le stockage ne répond pas : `{ "status": "error", "database": "error", "storage": "ok" }` (ce format, plutôt que le format d'erreur habituel, permet de voir quel service est en panne)
+- **Erreurs :** `400 VALIDATION_ERROR` si `deep` a une autre valeur.
+- **Utilisé par :** la page d'accueil (état du serveur), la vérification de santé de Render.
 
 ---
 

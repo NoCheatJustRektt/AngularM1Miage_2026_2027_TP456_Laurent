@@ -1,0 +1,28 @@
+.welcome h1 {
+  margin: 0 0 8px;
+  font: var(--mat-sys-headline-medium);
+}
+
+.notice {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.status {
+  max-width: 480px;
+  margin-top: 24px;
+}
+
+.status-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.online {
+  color: var(--mat-sys-primary);
+}
+
+.offline {
+  color: var(--mat-sys-error);
+}

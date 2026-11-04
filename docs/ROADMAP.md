@@ -10,7 +10,7 @@
 | # | Étape | Contenu principal | État |
 |---|---|---|---|
 | — | **Conception** | Sujet, fonctionnalités, architecture, choix techniques, documentation | ✅ |
-| 0 | **Mise en place** | Workspaces, serveur, Angular, outillage, `/api/health` | 🔲 |
+| 0 | **Mise en place** | Workspaces, serveur, Angular, outillage, `/api/health` | ✅ |
 | 1 | **Authentification** | Inscription, connexion, JWT, profil, guards | 🔲 |
 | 2 | **Fiches et fichiers** | Créer, modifier, supprimer, envoyer, télécharger, états | 🔲 |
 | 3 | **Découverte** | Fiches récentes, recherche, filtres, pagination, accueil | 🔲 |
@@ -33,20 +33,21 @@
 - [x] `CLAUDE.md` et hook de journalisation des prompts
 - [x] Workflow de branches `main` ← `develop` ← branches de travail, avec hook de garde (ADR-016)
 
-## 🔲 Étape 0 — Mise en place
+## ✅ Étape 0 — Mise en place (2026-11-04, branche `chore/00-project-setup`)
 
-- [ ] Activer la journalisation des prompts (`.claude/hooks/prompt-log.config.json`)
-- [ ] `package.json` racine avec workspaces `shared`, `server`, `client` et scripts `dev`, `test`, `lint`, `build`
-- [ ] `tsconfig.base.json`, ESLint, Prettier, `.editorconfig`, `.gitignore`
-- [ ] Paquet `shared` : premiers types et constantes
-- [ ] Serveur : `app.ts`, `server.ts`, `config/env.ts`, `core/` (erreurs, middlewares d'erreur et 404), `storage/` (interface + mémoire), module `health`
-- [ ] `server/.env.example`
-- [ ] Client : application Angular avec Angular Material, proxy `/api`, structure `core/ shared/ features/`, shell (barre + menu)
-- [ ] Vitest configuré dans `server` et `client` ; `tests/setup.ts` avec MongoDB en mémoire
-- [ ] Premiers tests : `GET /api/health`, middleware d'erreurs, `env.ts`, composant shell
-- [ ] GitHub Actions : lint + tests à chaque push
+- [x] Activer la journalisation des prompts (`.claude/hooks/prompt-log.config.json`)
+- [x] Mettre Node.js à jour (26 LTS), exigé par Angular 22 (ADR-017)
+- [x] `package.json` racine avec workspaces `shared`, `server`, `client` et scripts `dev`, `test`, `test:coverage`, `lint`, `format`, `build`
+- [x] `tsconfig.base.json`, ESLint, Prettier, `.editorconfig`, `.gitignore`, `.gitattributes` (fins de ligne LF)
+- [x] Paquet `shared` : constantes (fichiers, fiches, pagination) et types (`ApiError`, `Paginated`, santé)
+- [x] Serveur : `app.ts`, `server.ts`, `config/env.ts`, `core/` (erreurs, base de données, journalisation, middlewares de validation, d'erreur et 404), `storage/` (interface + mémoire), module `health`
+- [x] `server/.env.example`
+- [x] Client : application Angular 22 avec Angular Material 3, proxy `/api`, environnements, shell (barre + menu replié sur téléphone), page d'accueil qui affiche l'état du serveur
+- [x] Vitest configuré dans `server` et `client` ; MongoDB en mémoire pour les tests (`tests/global-setup.ts`, `tests/setup.ts`)
+- [x] Tests : `GET /api/health`, application Express, middlewares d'erreur et de validation, `env.ts`, stockage en mémoire, composant racine, shell, `HealthApi`, page d'accueil
+- [x] GitHub Actions : lint + tests + build à chaque push
 
-**Terminé quand :** `npm run dev` affiche l'application Angular, qui appelle `/api/health` ; `npm test` et `npm run lint` passent.
+**Résultat :** `npm run dev` affiche l'application Angular, qui appelle `/api/health` (vérifié dans le navigateur, sur ordinateur et sur téléphone) ; `npm test` (49 tests), `npm run lint` et `npm run build` passent.
 
 ## 🔲 Étape 1 — Authentification
 

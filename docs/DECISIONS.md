@@ -23,6 +23,9 @@
 | [014](#adr-014--code-en-anglais-documentation-et-interface-en-français) | Code en anglais, documentation et interface en français | 2026-11-04 | Acceptée |
 | [015](#adr-015--journalisation-des-prompts-par-un-hook-claude-code) | Journalisation des prompts par un hook Claude Code | 2026-11-04 | Acceptée |
 | [016](#adr-016--workflow-de-branches-main--develop--branches-de-travail) | Workflow de branches main ← develop ← branches de travail | 2026-11-04 | Acceptée |
+| [017](#adr-017--versions-de-référence--node-26-angular-22-typescript-60) | Versions de référence : Node 26, Angular 22, TypeScript 6.0 | 2026-11-04 | Acceptée |
+| [018](#adr-018--modules-es-et-paquet-partagé-compilé) | Modules ES et paquet partagé compilé | 2026-11-04 | Acceptée |
+| [019](#adr-019--mongodb-en-mémoire-pour-les-tests-et-le-développement) | MongoDB en mémoire pour les tests et le développement | 2026-11-04 | Acceptée |
 
 ---
 
@@ -139,3 +142,23 @@
 - **Options :** consigne seule dans `CLAUDE.md` ; consigne + règles de permission Claude Code (correspondance par préfixe, fragile) ; **consigne + hook `PreToolUse`** qui analyse les commandes ; protection de branches sur GitHub (complément côté serveur).
 - **Décision :** branches `main` ← `develop` ← `<type>/<description>` (types `feature`, `fix`, `enhancement`, `docs`, `chore`, `refactor`, `test`). Le hook `.claude/hooks/guard-git.mjs` refuse toute modification de fichier, tout commit et toute réécriture sur `main` et `develop`, refuse tout push et toute fusion vers `main`, demande la validation de l'utilisateur pour toute fusion ou tout push vers `develop`, et vérifie le nom des nouvelles branches. Fusions avec `--no-ff`.
 - **Conséquences :** impossible pour l'IA de travailler par erreur sur une branche protégée ; chaque fusion dans `develop` passe par une confirmation explicite. Le hook ne s'applique qu'à Claude Code. Pour protéger aussi le dépôt GitHub, il est conseillé d'activer la protection de branche sur `main` et `develop` (fusion par pull request uniquement).
+
+## ADR-017 — Versions de référence : Node 26, Angular 22, TypeScript 6.0
+
+- **Contexte :** au démarrage de l'étape 0, la dernière version d'Angular (22.2) exige Node.js 22.22.3, 24.15 ou 26 ; la machine de développement avait Node 22.19. Angular 22 et `typescript-eslint` acceptent TypeScript 6.0, pas encore TypeScript 7.
+- **Options :** rester sur Angular 21 (compatible avec Node 22.19) ; **mettre Node à jour et utiliser Angular 22**.
+- **Décision :** **Node.js 26 LTS** (installé avec winget), **Angular 22.2**, Angular Material 22, **TypeScript 6.0**, Express 5, Mongoose 9, Zod 4, Vitest 5, ESLint 10. Le champ `engines` du `package.json` racine impose `^22.22.3 || ^24.15.0 || >=26.0.0`.
+- **Conséquences :** dernières versions, pas de migration à prévoir pendant le projet. La CI et Render doivent utiliser Node 26 (à fixer à l'étape 8).
+
+## ADR-018 — Modules ES et paquet partagé compilé
+
+- **Contexte :** `shared` doit être utilisable par le serveur (Node.js) et par Angular.
+- **Options :** importer directement les sources TypeScript de `shared` (alias de chemins, fragile à l'exécution) ; **compiler `shared` en JavaScript ES dans `shared/dist`**.
+- **Décision :** `shared` et `server` sont des paquets **ESM** (`"type": "module"`, `module: NodeNext`) ; `shared` est compilé par `npm run build:shared`, lancé automatiquement par `dev`, `test` et `build`.
+- **Conséquences :** le même code tourne en développement (`tsx`), en test (Vitest) et en production (`node dist/server.js`). Les imports relatifs du serveur portent l'extension `.js` (voir [CONVENTIONS.md](CONVENTIONS.md)). Après une modification de `shared` pendant `npm run dev`, relancer `npm run build:shared`.
+
+## ADR-019 — MongoDB en mémoire pour les tests et le développement
+
+- **Contexte :** les tests ne doivent dépendre d'aucun service externe, et le projet doit pouvoir démarrer sans compte MongoDB Atlas.
+- **Décision :** **`mongodb-memory-server`**. Pour les tests : une seule instance pour toute la suite (`tests/global-setup.ts`), une base distincte par fichier, vidée entre deux tests (`tests/setup.ts`). En développement : si `MONGODB_URI` est absente, `server.ts` démarre une base en mémoire. En production, `MONGODB_URI` est obligatoire (vérifié par `config/env.ts`).
+- **Conséquences :** `npm install` puis `npm run dev` suffisent pour lancer le projet. Le premier lancement télécharge le binaire MongoDB (environ 100 Mo, mis en cache). En développement, les données sont perdues à chaque arrêt du serveur : utiliser une vraie base pour garder des données.

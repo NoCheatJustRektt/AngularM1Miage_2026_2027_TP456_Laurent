@@ -1,0 +1,49 @@
+<mat-toolbar class="toolbar">
+  @if (isHandset()) {
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Ouvrir ou fermer le menu"
+      [attr.aria-expanded]="isMenuOpen()"
+      (click)="toggleMenu()"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+  }
+  <a class="brand" routerLink="/">
+    <mat-icon aria-hidden="true">menu_book</mat-icon>
+    <span>StudyShare</span>
+  </a>
+</mat-toolbar>
+
+<mat-sidenav-container class="container">
+  <mat-sidenav
+    class="sidenav"
+    [mode]="isHandset() ? 'over' : 'side'"
+    [opened]="isMenuOpen()"
+    (closedStart)="closeMenuOnHandset()"
+  >
+    <mat-nav-list aria-label="Menu principal">
+      @for (item of navigationItems; track item.path) {
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive
+          #link="routerLinkActive"
+          [routerLinkActiveOptions]="{ exact: true }"
+          [activated]="link.isActive"
+          (click)="closeMenuOnHandset()"
+        >
+          <mat-icon matListItemIcon aria-hidden="true">{{ item.icon }}</mat-icon>
+          <span matListItemTitle>{{ item.label }}</span>
+        </a>
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <main class="content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

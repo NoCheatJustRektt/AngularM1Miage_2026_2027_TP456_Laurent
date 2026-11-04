@@ -1,0 +1,31 @@
+# Dépendances
+node_modules/
+
+# Fichiers compilés
+dist/
+out-tsc/
+*.tsbuildinfo
+
+# Angular
+.angular/
+
+# Tests
+coverage/
+
+# Variables d'environnement : ne jamais committer de secret
+.env
+.env.*
+!.env.example
+
+# Journaux
+*.log
+
+# Éditeurs et systèmes
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Réglages personnels de Claude Code
+.claude/settings.local.json
